@@ -45,15 +45,28 @@ export default function DashboardPage() {
   setMonitors(data || []);
 }
 
+async function addMonitor() {
+  if (!name || !url) return;
 
-  async function addMonitor() {
-    if (!name || !url) return;
+  // 1. insert monitor
+  const { data, error } = await supabase
+    .from("monitors")
+    .insert({ name, url })
+    .select()
+    .single();
 
-    await supabase.from("monitors").insert({ name, url });
-    setName("");
-    setUrl("");
-    fetchMonitors();
-  }
+  if (error || !data) return;
+
+  setName("");
+  setUrl("");
+
+  // 2. immediately trigger check API
+  await fetch("/api/check");
+
+  // 3. reload data
+  fetchMonitors();
+}
+
 useEffect(() => {
   fetchMonitors();
 
