@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -44,11 +43,9 @@ export default function DashboardPage() {
 
   setMonitors(data || []);
 }
-
 async function addMonitor() {
   if (!name || !url) return;
 
-  // 1. insert monitor
   const { data, error } = await supabase
     .from("monitors")
     .insert({ name, url })
@@ -60,10 +57,11 @@ async function addMonitor() {
   setName("");
   setUrl("");
 
-  // 2. immediately trigger check API
-  await fetch("/api/check");
+  // FORCE CHECK IMMEDIATELY
+  await fetch(`${window.location.origin}/api/check`, {
+    cache: "no-store",
+  });
 
-  // 3. reload data
   fetchMonitors();
 }
 
